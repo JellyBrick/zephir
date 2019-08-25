@@ -156,6 +156,49 @@ class ArgInfoDefinition
             return;
         }
 
+        if ($this->functionLike->isVoid()) {
+            $this->codePrinter->output('#if PHP_VERSION_ID >= 70100');
+            $this->codePrinter->output('#if PHP_VERSION_ID >= 70200');
+            $this->codePrinter->output(
+                sprintf(
+                    'ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(%s, %d, %d, %s, %d)',
+                    $this->name,
+                    (int) $this->returnByRef,
+                    $this->functionLike->getNumberOfRequiredParameters(),
+                    $this->getReturnType(),
+                    (int) $this->functionLike->areReturnTypesNullCompatible()
+                )
+            );
+
+            $this->codePrinter->output('#else');
+
+            $this->codePrinter->output(
+                sprintf(
+                    'ZEND_BEGIN_ARG_WITH_RETURN_TYPE_INFO_EX(%s, %d, %d, %s, NULL, %d)',
+                    $this->name,
+                    (int) $this->returnByRef,
+                    $this->functionLike->getNumberOfRequiredParameters(),
+                    $this->getReturnType(),
+                    (int) $this->functionLike->areReturnTypesNullCompatible()
+                )
+            );
+
+            $this->codePrinter->output('#endif');
+            $this->codePrinter->output('#else');
+            if (true == $this->hasParameters()) {
+                $this->codePrinter->output(
+                    sprintf(
+                        'ZEND_BEGIN_ARG_INFO_EX(%s, 0, %d, %d)',
+                        $this->name,
+                        (int) $this->returnByRef,
+                        $this->functionLike->getNumberOfRequiredParameters()
+                    )
+                );
+            }
+            $this->codePrinter->output('#endif');
+            return;
+        }
+
         $this->codePrinter->output('#if PHP_VERSION_ID >= 70200');
         $this->codePrinter->output(
             sprintf(
@@ -355,6 +398,10 @@ class ArgInfoDefinition
 
         if ($this->functionLike->areReturnTypesStringCompatible()) {
             return 'IS_STRING';
+        }
+
+        if ($this->functionLike->isVoid()) {
+            return 'IS_VOID';
         }
 
         if (\array_key_exists('array', $this->functionLike->getReturnTypes())) {
