@@ -96,7 +96,7 @@ class ArgInfoDefinition
         ) {
             $this->richRenderStart();
 
-            if (false == $this->hasParameters()) {
+            if (false == $this->hasParameters() && false == $this->functionLike->isVoid()) {
                 $this->codePrinter->output('ZEND_END_ARG_INFO()');
                 $this->codePrinter->outputBlankLine();
             }
@@ -184,7 +184,14 @@ class ArgInfoDefinition
             );
 
             $this->codePrinter->output('#endif');
+            
+            if (false == $this->hasParameters()) {
+                $this->codePrinter->output('ZEND_END_ARG_INFO()');
+                $this->codePrinter->outputBlankLine();
+            }
+            
             $this->codePrinter->output('#else');
+            
             if (true == $this->hasParameters()) {
                 $this->codePrinter->output(
                     sprintf(
@@ -194,7 +201,15 @@ class ArgInfoDefinition
                         $this->functionLike->getNumberOfRequiredParameters()
                     )
                 );
-            }
+            } 
+            
+            $this->codePrinter->output(
+                sprintf(
+                    '#define %s NULL',
+                    $this->name
+                )
+            );
+            
             $this->codePrinter->output('#endif');
             return;
         }
