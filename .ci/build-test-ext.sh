@@ -56,7 +56,7 @@ else
   ./configure --enable-test
 fi
 
-make -j"$(getconf _NPROCESSORS_ONLN)" 2> ./compile-errors.log
+make -j"$(getconf _NPROCESSORS_ONLN)" #2> ./compile-errors.log
 exitcode=$?
 
 test "$exitcode" = 0 || {
