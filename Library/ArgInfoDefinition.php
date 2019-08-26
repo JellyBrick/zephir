@@ -196,19 +196,12 @@ class ArgInfoDefinition
                 $this->codePrinter->output(
                     sprintf(
                         'ZEND_BEGIN_ARG_INFO_EX(%s, 0, %d, %d)',
-                        $this->name,
+                        'NULL',
                         (int) $this->returnByRef,
                         $this->functionLike->getNumberOfRequiredParameters()
                     )
                 );
-            } 
-            
-            $this->codePrinter->output(
-                sprintf(
-                    '#define %s NULL',
-                    $this->name
-                )
-            );
+            }
             
             $this->codePrinter->output('#endif');
             return;
